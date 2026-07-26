@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEI Family Adventure Guide</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a2540">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>🌊 PEI Adventure Guide</h1>
+    <p>Prince Edward Island Family Planner & Explorer</p>
+  </header>
+
+  <div class="container">
+
+    <div class="map-wrapper">
+      <div id="map"></div>
+    </div>
+
+    <section class="planner-card" id="planner-section">
+      <h2 class="section-title">✨ What Should We Do Today?</h2>
+      
+      <div class="planner-group">
+        <label>Who is coming on this trip?</label>
+        <div class="chip-grid" id="group-chips">
+          <div class="chip selected" data-value="everyone">☑ Everyone</div>
+          <div class="chip" data-value="teens">🏎 Teenagers</div>
+          <div class="chip" data-value="parents">☕ Mom & Dad</div>
+          <div class="chip" data-value="grandma">🌅 Grandma</div>
+          <div class="chip" data-value="grandpa">⚓ Grandpa</div>
+        </div>
+      </div>
+
+      <div class="planner-group">
+        <label>Time Available:</label>
+        <div class="chip-grid" id="time-chips">
+          <div class="chip" data-value="short">⚡ 1–2 hours</div>
+          <div class="chip selected" data-value="half">⏱ Half day</div>
+          <div class="chip" data-value="full">☀️ Full day</div>
+        </div>
+      </div>
+
+      <div class="planner-group">
+        <label>Mood / Activity Focus:</label>
+        <div class="chip-grid" id="mood-chips">
+          <div class="chip selected" data-value="all">🌟 Any Mood</div>
+          <div class="chip" data-value="beach">🏖 Beach & Swim</div>
+          <div class="chip" data-value="scenic">🌅 Scenic Drive</div>
+          <div class="chip" data-value="food">🍦 Food & Ice Cream</div>
+          <div class="chip" data-value="teen">🏎 Thrills & Adventure</div>
+          <div class="chip" data-value="rainy">🌧 Rainy Day</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-recommend">Find Best Outings</button>
+    </section>
+
+    <h2 class="section-title">🗺 Suggested Driving Routes</h2>
+    <div class="routes-grid" id="routes-container"></div>
+
+    <h2 class="section-title">📍 Explore All Locations</h2>
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All Places</button>
+      <button class="filter-btn" data-filter="grandparent">👴 Grandparent Friendly</button>
+      <button class="filter-btn" data-filter="teen">🏎 Teen Approved</button>
+      <button class="filter-btn" data-filter="beach">🏖 Beaches</button>
+      <button class="filter-btn" data-filter="lighthouse">🌅 Lighthouses</button>
+      <button class="filter-btn" data-filter="towns">🏙 Towns & Harbours</button>
+      <button class="filter-btn" data-filter="favs">⭐ Favorites</button>
+    </div>
+
+    <div class="location-grid" id="locations-container"></div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="scrollToSection('map')">
+      <span>🗺</span> Map
+    </div>
+    <div class="nav-item" onclick="scrollToSection('planner-section')">
+      <span>✨</span> Planner
+    </div>
+    <div class="nav-item" onclick="scrollToSection('routes-container')">
+      <span>🚗</span> Routes
+    </div>
+    <div class="nav-item" onclick="scrollToSection('filter-bar')">
+      <span>📍</span> Places
+    </div>
+  </nav>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script src="data/locations.js"></script>
+  <script src="data/routes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
