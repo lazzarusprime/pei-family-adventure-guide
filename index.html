@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>PEI Family Adventure Guide</title>
+<meta name="description" content="An interactive, offline-friendly trip planner and map for exploring Prince Edward Island as a family." />
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0B3D5C" />
+<link rel="apple-touch-icon" href="icons/icon-180.png" />
+<link rel="icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="PEI Guide" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="app-header">
+  <div class="app-header__inner">
+    <div class="app-header__brand">
+      <span class="app-header__mark" aria-hidden="true">🌊</span>
+      <div class="app-header__titles">
+        <p class="app-header__eyebrow">Ottawa → PEI → Ottawa</p>
+        <h1 class="app-header__title">PEI Family Adventure Guide</h1>
+      </div>
+    </div>
+  </div>
+  <svg class="tide-line" viewBox="0 0 1440 40" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,20 C120,40 240,0 360,20 C480,40 600,0 720,20 C840,40 960,0 1080,20 C1200,40 1320,0 1440,20 L1440,40 L0,40 Z"></path>
+  </svg>
+</header>
+
+<!-- ============ MAIN VIEWS ============ -->
+<main id="main">
+
+  <!-- ---------- PLAN MY DAY ---------- -->
+  <section class="view" id="view-plan" data-view="plan">
+    <div class="view-inner">
+      <div class="planner-hero">
+        <h2 class="section-title">What should we do today?</h2>
+        <p class="section-sub">Answer three questions, get real suggestions — matched to who's actually coming.</p>
+      </div>
+
+      <form id="planner-form" class="planner-card">
+        <fieldset class="planner-field">
+          <legend>Who's coming?</legend>
+          <div class="chip-group" id="who-chips" data-multi="true">
+            <button type="button" class="chip" data-value="everyone">Everyone</button>
+            <button type="button" class="chip" data-value="teenagers">Teenagers</button>
+            <button type="button" class="chip" data-value="parents">Mom &amp; Dad</button>
+            <button type="button" class="chip" data-value="grandma">Grandma</button>
+            <button type="button" class="chip" data-value="grandpa">Grandpa</button>
+            <button type="button" class="chip" data-value="extended">Extended Family</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="planner-field">
+          <legend>How much time?</legend>
+          <div class="chip-group" id="time-chips" data-multi="false">
+            <button type="button" class="chip" data-value="short">1–2 hours</button>
+            <button type="button" class="chip" data-value="half">Half day</button>
+            <button type="button" class="chip" data-value="full">Full day</button>
+          </div>
+        </fieldset>
+
+        <fieldset class="planner-field">
+          <legend>What kind of day?</legend>
+          <div class="chip-group" id="mood-chips" data-multi="false">
+            <button type="button" class="chip" data-value="beach">🏖 Beach</button>
+            <button type="button" class="chip" data-value="scenic">🌅 Scenic drive</button>
+            <button type="button" class="chip" data-value="food">🍦 Food</button>
+            <button type="button" class="chip" data-value="adventure">🎢 Adventure</button>
+            <button type="button" class="chip" data-value="nature">🌲 Nature</button>
+            <button type="button" class="chip" data-value="smalltowns">🏘 Small towns</button>
+            <button type="button" class="chip" data-value="rainy">🌧 Rainy day</button>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn--primary btn--block" id="planner-submit">Show me today's picks</button>
+      </form>
+
+      <div id="planner-results" class="planner-results" hidden>
+        <div class="planner-results__head">
+          <h3>Today's picks</h3>
+          <button type="button" class="btn btn--ghost btn--sm" id="planner-reset">Start over</button>
+        </div>
+        <div id="planner-results-list" class="card-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- MAP / EXPLORE ---------- -->
+  <section class="view" id="view-map" data-view="map">
+    <div class="view-inner view-inner--flush">
+      <div class="explore-toolbar">
+        <div class="filter-scroll" id="category-filters" role="group" aria-label="Filter by category"></div>
+        <div class="filter-row">
+          <select id="filter-time" class="select">
+            <option value="">Any drive time</option>
+            <option value="20">Within 20 min</option>
+            <option value="40">Within 40 min</option>
+            <option value="70">Within 1 hr 10 min</option>
+          </select>
+          <select id="filter-audience" class="select">
+            <option value="">Good for anyone</option>
+            <option value="teens">Good for teens</option>
+            <option value="grandparents">Good for grandparents</option>
+            <option value="families">Good for families</option>
+          </select>
+          <label class="checkbox-pill">
+            <input type="checkbox" id="filter-free" />
+            <span>Free only</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="map" class="map-canvas" role="application" aria-label="Map of Prince Edward Island locations"></div>
+
+      <div class="explore-list" id="explore-list"></div>
+    </div>
+  </section>
+
+  <!-- ---------- ROUTES ---------- -->
+  <section class="view" id="view-routes" data-view="routes">
+    <div class="view-inner">
+      <h2 class="section-title">Suggested routes</h2>
+      <p class="section-sub">Full loops out from home base and back — good starting points for a day plan.</p>
+      <div id="routes-list" class="route-list"></div>
+    </div>
+  </section>
+
+  <!-- ---------- SAVED ---------- -->
+  <section class="view" id="view-saved" data-view="saved">
+    <div class="view-inner">
+      <h2 class="section-title">Saved</h2>
+      <div class="saved-tabs" role="tablist">
+        <button class="saved-tab is-active" data-saved="want">⭐ Want to Visit</button>
+        <button class="saved-tab" data-saved="favorite">❤️ Favorites</button>
+        <button class="saved-tab" data-saved="visited">✔ Visited</button>
+      </div>
+      <div id="saved-list" class="card-list"></div>
+      <p class="empty-note" id="saved-empty" hidden>Nothing here yet — save a spot from any location card.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ LOCATION DETAIL SHEET ============ -->
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
+<div class="sheet" id="location-sheet" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="sheet__handle"></div>
+  <button class="sheet__close" id="sheet-close" aria-label="Close">✕</button>
+  <div class="sheet__content" id="sheet-content"></div>
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<nav class="tab-nav" aria-label="Main navigation">
+  <button class="tab-nav__item is-active" data-nav="plan">
+    <span class="tab-nav__icon" aria-hidden="true">🧭</span><span>Plan</span>
+  </button>
+  <button class="tab-nav__item" data-nav="map">
+    <span class="tab-nav__icon" aria-hidden="true">🗺️</span><span>Map</span>
+  </button>
+  <button class="tab-nav__item" data-nav="routes">
+    <span class="tab-nav__icon" aria-hidden="true">🛣️</span><span>Routes</span>
+  </button>
+  <button class="tab-nav__item" data-nav="saved">
+    <span class="tab-nav__icon" aria-hidden="true">⭐</span><span>Saved</span>
+  </button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data/locations.js"></script>
+<script src="data/routes.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
